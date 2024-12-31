@@ -9,9 +9,9 @@ export const AppRoutes = (): JSX.Element => {
                 {
                     (
                         authStatus === "authorization" ?
-                            <Route path="/auth/*" element={<AuthPage />} />
-                            :
                             <Route path="/*" element={<CalendarPage />} />
+                            :
+                            <Route path="/auth/*" element={<AuthPage />} />
                     )
                 }
 

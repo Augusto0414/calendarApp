@@ -3,7 +3,7 @@ import { Label } from "../../components/Label";
 import { Input } from "../../components/Input";
 
 export const AuthPage = () => {
-    const [isLogin, setIsLogin] = useState(true);
+    const [isLogin, setIsLogin] = useState<boolean>(true);
 
     return (
         <main className="min-h-screen flex justify-center items-center bg-gray-100">
