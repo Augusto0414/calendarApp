@@ -4,28 +4,22 @@ import Swal from "sweetalert2";
 import 'sweetalert2/dist/sweetalert2.min.css'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { getMessage, localizer } from '../../helpers';
-import { CalendarEvent, NavBar } from '../components';
+import { CalendarEvent, FabAdd, NavBar } from '../components';
 import { CalendarModal } from '../components/CalendarModal';
 import { Label, TextArea, Input } from '../../components';
+import { useUIStore } from '../../hooks/useUIStore';
+import { useCalendarStore, Event } from '../../hooks/useCalendarStore';
+import { FabDelete } from '../components/FabDelete';
 
-const events = [{
-    title: 'Meeting',
-    notes: 'Patel de cumpleaños',
-    start: new Date(),
-    end: addHours(new Date(), 2),
-    bgColor: '#fafafa',
-    user: {
-        _id: '123s',
-        name: 'Augusto'
-    }
-}]
+
 export const CalendarPage = (): JSX.Element => {
 
     const [lastView, setLastView] = useState<View>(localStorage.getItem('lastView') as View || 'week');
-    const [isOpen, setIsOpen] = useState<boolean>(false);
     const [formSubmit, setFormSubmit] = useState<boolean>(true);
+    const { isDateModalOpen, openDateModal, closeDateModal } = useUIStore()
+    const { events, setActiveEvents, activeEvent, saveCalendart } = useCalendarStore();
     const [formValue, setformValue] = useState({
         title: '',
         notes: '',
@@ -33,7 +27,12 @@ export const CalendarPage = (): JSX.Element => {
         end: addHours(new Date(), 2),
     })
 
-    const handleToggle = () => setIsOpen(!isOpen);
+    useEffect(() => {
+        if (activeEvent !== null) {
+            setformValue({ ...activeEvent })
+        }
+    }, [activeEvent])
+
 
     const onInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -45,7 +44,7 @@ export const CalendarPage = (): JSX.Element => {
         }
     }
 
-    const onSubmit = (e: React.ChangeEvent<HTMLFormElement>) => {
+    const onSubmit = async (e: React.ChangeEvent<HTMLFormElement>) => {
         e.preventDefault();
         const diffrence = differenceInSeconds(formValue.end, formValue.start);
         if (diffrence <= 0 || isNaN(diffrence)) {
@@ -56,11 +55,16 @@ export const CalendarPage = (): JSX.Element => {
             setFormSubmit(false);
             return;
         }
+        await saveCalendart(formValue);
         console.log(formValue);
     }
 
-    const onDoucbleClick = (event: any) => { }
-    const onSelected = (event: any) => { }
+    const onDoucbleClick = () => {
+        openDateModal();
+    }
+    const onSelected = (event: Event) => {
+        setActiveEvents(event);
+    }
 
     const onViewChanged = (event: View) => {
         localStorage.setItem('lastView', event);
@@ -98,8 +102,7 @@ export const CalendarPage = (): JSX.Element => {
                 onSelectEvent={onSelected}
                 onView={onViewChanged}
             />
-            <button onClick={handleToggle}>Toggle Modal</button>
-            <CalendarModal isOpen={isOpen} onClose={handleToggle} >
+            <CalendarModal isOpen={isDateModalOpen} onClose={closeDateModal} >
                 <div className='w-full my-4'>
                     <h1 className='text-left mx-5 text-gray-700 text-2xl font-semibold'>
                         Añadir evento
@@ -165,6 +168,8 @@ export const CalendarPage = (): JSX.Element => {
                     </div>
                 </form>
             </CalendarModal>
+            <FabAdd />
+            <FabDelete />
         </>
     );
 };

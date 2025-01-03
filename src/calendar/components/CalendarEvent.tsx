@@ -6,7 +6,7 @@ interface CalendarEventProps {
         notes: string;
         start: Date;
         end: Date;
-        bgColor: string;
+        bgColor?: string;
         user: {
             _id: string;
             name: string;
