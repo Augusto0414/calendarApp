@@ -1,10 +1,40 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Label } from "../../components/Label";
 import { Input } from "../../components/Input";
+import { useAuthStore, useForm } from "../../hooks";
+import Swal from "sweetalert2";
+
+const loginFormField = {
+    loginEmail: '',
+    loginPassword: ''
+}
+
+const registerFormField = {
+    registerName: '',
+    registerEmail: '',
+    registerPassword: '',
+    registerConfirmPassword: ''
+}
 
 export const AuthPage = () => {
     const [isLogin, setIsLogin] = useState<boolean>(true);
+    const { startLogin, errorMessage } = useAuthStore();
+    const { loginPassword, loginEmail, onInputChange: onLoginInputChange } = useForm(loginFormField);
+    const { registerName, registerEmail, registerPassword, registerConfirmPassword, onInputChange: onRegisterInputChange } = useForm(registerFormField);
 
+    const onLoginSubmit = (e: React.ChangeEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        startLogin({ email: loginEmail, password: loginPassword });
+    }
+
+    const onRegisterSubmit = (e: React.ChangeEvent<HTMLFormElement>) => {
+        e.preventDefault();
+    }
+    useEffect(() => {
+        if (errorMessage != null || errorMessage !== undefined) {
+            Swal.fire('Error en la autenticacion', errorMessage, "error")
+        }
+    }, [errorMessage])
     return (
         <main className="min-h-screen flex justify-center items-center bg-gray-100">
             <div className="relative w-full max-w-4xl h-[500px] bg-white rounded-xl overflow-hidden shadow-2xl">
@@ -20,19 +50,25 @@ export const AuthPage = () => {
                             <span className="font-medium text-sm text-gray-500">
                                 Inicia sesión para acceder a tus actividades
                             </span>
-                            <form className="py-4">
+                            <form onSubmit={onLoginSubmit} className="py-4">
                                 <div className="flex flex-col space-y-3">
                                     <Label htmlFor="email">Correo Electrónico</Label>
                                     <Input
                                         type="email"
                                         id="email"
                                         placeholder="correo electrónico"
+                                        name="loginEmail"
+                                        value={loginEmail}
+                                        onChange={onLoginInputChange}
                                     />
                                     <Label htmlFor="password">Contraseña</Label>
                                     <Input
                                         type="password"
                                         id="password"
                                         placeholder="contraseña"
+                                        name="loginPassword"
+                                        value={loginPassword}
+                                        onChange={onLoginInputChange}
                                     />
                                     <button
                                         type="submit"
@@ -62,7 +98,7 @@ export const AuthPage = () => {
                             <span className="font-medium text-sm text-gray-500">
                                 Crea tu cuenta para comenzar
                             </span>
-                            <form className="py-4">
+                            <form onSubmit={onRegisterSubmit} className="py-4">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                     <div>
                                         <Label htmlFor="name">Nombre de usuario</Label>
@@ -70,6 +106,9 @@ export const AuthPage = () => {
                                             type="text"
                                             id="name"
                                             placeholder="nombre de usuario"
+                                            name="registerName"
+                                            value={registerName}
+                                            onChange={onRegisterInputChange}
                                         />
                                     </div>
                                     <div>
@@ -78,6 +117,9 @@ export const AuthPage = () => {
                                             type="email"
                                             id="email"
                                             placeholder="correo electrónico"
+                                            name="registerEmail"
+                                            value={registerEmail}
+                                            onChange={onRegisterInputChange}
                                         />
                                     </div>
                                     <div>
@@ -86,6 +128,9 @@ export const AuthPage = () => {
                                             type="password"
                                             id="password"
                                             placeholder="contraseña"
+                                            name="registerPassword"
+                                            value={registerPassword}
+                                            onChange={onRegisterInputChange}
                                         />
                                     </div>
                                     <div>
@@ -96,6 +141,9 @@ export const AuthPage = () => {
                                             type="password"
                                             id="passwordConfirm"
                                             placeholder="confirmar contraseña"
+                                            name="registerConfirmPassword"
+                                            value={registerConfirmPassword}
+                                            onChange={onRegisterInputChange}
                                         />
                                     </div>
                                 </div>

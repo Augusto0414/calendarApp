@@ -84,7 +84,7 @@ export const CalendarPage = (): JSX.Element => {
     }
     return (
         <>
-            <NavBar nickUser={"Augusto"} />
+            <NavBar />
             <Calendar
                 culture='es'
                 localizer={localizer}
