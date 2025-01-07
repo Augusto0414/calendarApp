@@ -12,14 +12,15 @@ import { Label, TextArea, Input } from '../../components';
 import { useUIStore } from '../../hooks/useUIStore';
 import { useCalendarStore, Event } from '../../hooks/useCalendarStore';
 import { FabDelete } from '../components/FabDelete';
+import { useAuthStore } from '../../hooks';
 
 
 export const CalendarPage = (): JSX.Element => {
-
+    const { user } = useAuthStore();
     const [lastView, setLastView] = useState<View>(localStorage.getItem('lastView') as View || 'week');
     const [formSubmit, setFormSubmit] = useState<boolean>(true);
     const { isDateModalOpen, openDateModal, closeDateModal } = useUIStore()
-    const { events, setActiveEvents, activeEvent, saveCalendart } = useCalendarStore();
+    const { events, setActiveEvents, activeEvent, saveCalendart, loadingEvents } = useCalendarStore();
     const [formValue, setformValue] = useState({
         title: '',
         notes: '',
@@ -33,16 +34,23 @@ export const CalendarPage = (): JSX.Element => {
         }
     }, [activeEvent])
 
+    useEffect(() => {
+        loadingEvents();
+    }, []);
+
 
     const onInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setFormSubmit(true);
+
         if (name === 'start' || name === 'end') {
-            setformValue({ ...formValue, [name]: new Date(value) });
+            const newDate = new Date(value);
+            console.log("New Date:", newDate);
+            setformValue({ ...formValue, [name]: newDate });
         } else {
             setformValue({ ...formValue, [name]: value });
         }
-    }
+    };
 
     const onSubmit = async (e: React.ChangeEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -73,8 +81,9 @@ export const CalendarPage = (): JSX.Element => {
 
     const eventStyleGetter = (event: any, start: Date, end: Date, isSelected: boolean) => {
 
+        const isMyEvent = (user.uid === event.user._id) || (user.uid === event.user.uid);
         const style = {
-            backgroundColor: '#347CF7',
+            backgroundColor: isMyEvent ? '#347CF7' : '#465660',
             borderRadius: '0px',
             color: 'white',
             opacity: 0.8,

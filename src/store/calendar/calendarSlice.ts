@@ -1,5 +1,4 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { addHours } from "date-fns";
 
 interface User {
   _id: string;
@@ -16,26 +15,17 @@ interface Event {
   user: User;
 }
 
+type IsLoading = true | false;
+
 export interface CalendarState {
   events: Event[];
   activeEvent: Event | null;
+  isLoading: IsLoading;
 }
 
 const initialState: CalendarState = {
-  events: [
-    {
-      _id: new Date().getTime().toString(),
-      title: "Meeting",
-      notes: "Pastel de cumpleaños",
-      start: new Date(),
-      end: addHours(new Date(), 2),
-      bgColor: "#fafafa",
-      user: {
-        _id: "123s",
-        name: "Augusto",
-      },
-    },
-  ],
+  isLoading: true,
+  events: [],
   activeEvent: null,
 };
 
@@ -59,9 +49,23 @@ export const calendarSlice = createSlice({
         state.activeEvent = null;
       }
     },
+    loadEvents: (state, action: PayloadAction<Event[]>) => {
+      state.isLoading = false;
+      action.payload.forEach((event) => {
+        const exist = state.events.some((dbEvents) => dbEvents._id === event._id);
+        if (!exist) {
+          state.events.push(event);
+        }
+      });
+    },
+    onLogout: (state) => {
+      state.events = [];
+      state.activeEvent = null;
+      state.isLoading = true;
+    },
   },
 });
 
-export const { setActiveEvent, addEvent, updateEvent, deleteEvent } = calendarSlice.actions;
+export const { setActiveEvent, addEvent, updateEvent, onLogout, deleteEvent, loadEvents } = calendarSlice.actions;
 
 export default calendarSlice.reducer;

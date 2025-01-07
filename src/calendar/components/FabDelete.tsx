@@ -1,11 +1,16 @@
+import Swal from "sweetalert2";
+import { useAuthStore } from "../../hooks";
 import { useCalendarStore } from "../../hooks/useCalendarStore";
 import { TiDeleteOutline } from "react-icons/ti";
 
 export const FabDelete = () => {
-    const { onDeleteEvent, hasEventSelect } = useCalendarStore()
+    const { onDeleteEvent, hasEventSelect, activeEvent } = useCalendarStore()
+    const user = useAuthStore().user
     const handleDelete = async () => {
-        if (hasEventSelect) {
-            await onDeleteEvent();
+        if (hasEventSelect && activeEvent?.user._id === user?.uid) {
+            await onDeleteEvent(activeEvent!);
+        } else {
+            Swal.fire("Error", "No tienes permisos para eliminar este evento", "error");
         }
     }
     return (

@@ -3,6 +3,7 @@ import { useDispatch } from "react-redux";
 import { RootState } from "../store/store";
 import calendarApi from "../api/calendarApi";
 import { checkingCredentials, clearErrorMessage, login, logout } from "../store/auth/authSlice";
+import { onLogout } from "../store/calendar/calendarSlice";
 
 interface User {
   email: string;
@@ -19,7 +20,7 @@ export const useAuthStore = () => {
       const { data } = await calendarApi.post("/auth", { email, password });
       localStorage.setItem("token", data.token);
       localStorage.setItem("token-init-date", new Date().getTime().toString());
-      dispatch(login({ name: data.name, id: data.uid }));
+      dispatch(login({ name: data.name, uid: data.uid }));
       console.log({ data });
     } catch (error) {
       dispatch(logout("Credenciales invalidas"));
@@ -34,7 +35,7 @@ export const useAuthStore = () => {
       const { data } = await calendarApi.get("/renew");
       localStorage.setItem("token", data.token);
       localStorage.setItem("token-init-date", new Date().getTime().toString());
-      dispatch(login({ name: data.name, id: data.uid }));
+      dispatch(login({ name: data.name, uid: data.uid }));
     } catch (err) {
       localStorage.clear();
       dispatch(logout());
@@ -42,6 +43,7 @@ export const useAuthStore = () => {
   };
   const logoutUser = () => {
     localStorage.clear();
+    dispatch(onLogout());
     dispatch(logout());
   };
 
